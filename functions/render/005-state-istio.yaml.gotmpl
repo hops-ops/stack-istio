@@ -1,0 +1,26 @@
+# code: language=yaml
+#
+# Build $state.istio with computed values for resource templates
+#
+
+{{- $eff := $state.spec.effective }}
+
+# ==============================================================================
+# Core computed state - pass through effective spec values
+# ==============================================================================
+{{- $istio := dict
+  "name" $eff.name
+  "clusterName" $eff.clusterName
+  "managementPolicies" $eff.managementPolicies
+  "labels" $eff.labels
+  "providerConfigRef" $eff.providerConfigRef
+  "namespace" $eff.namespace
+  "releaseName" $eff.releaseName
+  "values" $eff.values
+  "overrideAllValues" $eff.overrideAllValues
+}}
+
+# ==============================================================================
+# Store computed state
+# ==============================================================================
+{{- $state = set $state "istio" $istio }}

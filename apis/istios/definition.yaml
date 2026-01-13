@@ -1,0 +1,85 @@
+apiVersion: apiextensions.crossplane.io/v2
+kind: CompositeResourceDefinition
+metadata:
+  name: istios.helm.hops.ops.com.ai
+spec:
+  group: helm.hops.ops.com.ai
+  names:
+    kind: Istio
+    plural: istios
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    referenceable: true
+    served: true
+    schema:
+      openAPIV3Schema:
+        description: Istio installs the istiod Helm chart.
+        type: object
+        properties:
+          spec:
+            description: IstioSpec defines the desired state of Istio.
+            type: object
+            properties:
+              clusterName:
+                description: Name of the target cluster. Used as default for provider config names.
+                type: string
+              managementPolicies:
+                description: Management policies for all composed resources. Defaults to ["*"].
+                type: array
+                items:
+                  type: string
+                default:
+                - "*"
+              labels:
+                description: Custom labels applied to all managed resources. Merged with default labels (hops.ops.com.ai/managed, hops.ops.com.ai/istio).
+                type: object
+                additionalProperties:
+                  type: string
+                x-kubernetes-preserve-unknown-fields: true
+              providerConfigRef:
+                description: Reference to the Helm ProviderConfig.
+                type: object
+                properties:
+                  name:
+                    description: Name of the ProviderConfig. Defaults to clusterName.
+                    type: string
+                  kind:
+                    description: Kind of the ProviderConfig. Defaults to ProviderConfig.
+                    type: string
+                    enum:
+                    - ProviderConfig
+                    - ClusterProviderConfig
+              namespace:
+                description: Namespace for the Helm release. Defaults to istio-system.
+                type: string
+              name:
+                description: Helm release name. Defaults to the XR metadata.name.
+                type: string
+              values:
+                description: Helm values merged with defaults (fullnameOverride, nameOverride).
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              overrideAllValues:
+                description: Helm values that replace all defaults.
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+          status:
+            description: IstioStatus defines the observed state of Istio.
+            type: object
+            properties:
+              ready:
+                description: Overall readiness of the Istio installation.
+                type: boolean
+              release:
+                description: Status of the Helm release.
+                type: object
+                properties:
+                  name:
+                    type: string
+                  namespace:
+                    type: string
+                  ready:
+                    type: boolean
+        required:
+        - spec

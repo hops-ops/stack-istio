@@ -1,0 +1,38 @@
+# code: language=yaml
+#
+# Helm release for istiod
+#
+
+{{- $ist := $state.istio }}
+
+---
+apiVersion: helm.m.crossplane.io/v1beta1
+kind: Release
+metadata:
+  name: {{ $ist.releaseName }}
+  annotations:
+    {{ setResourceNameAnnotation "helm-release-istiod" }}
+  labels: {{ $ist.labels | toJson }}
+spec:
+  managementPolicies: {{ $ist.managementPolicies | toJson }}
+  forProvider:
+    chart:
+      name: istiod
+      repository: https://istio-release.storage.googleapis.com/charts
+      version: 1.24.2
+    namespace: {{ $ist.namespace }}
+    {{- if $ist.overrideAllValues }}
+    values:
+      {{- toYaml $ist.overrideAllValues | nindent 6 }}
+    {{- else }}
+    values:
+      fullnameOverride: istiod
+      nameOverride: istiod
+      {{- if $ist.values }}
+      {{- toYaml $ist.values | nindent 6 }}
+      {{- end }}
+    {{- end }}
+  rollbackLimit: 3
+  providerConfigRef:
+    name: {{ $ist.providerConfigRef.name }}
+    kind: {{ $ist.providerConfigRef.kind }}

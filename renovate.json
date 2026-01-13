@@ -1,0 +1,30 @@
+{
+  "extends": ["config:recommended", ":dependencyDashboard"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": [
+        "\\.yaml\\.gotmpl$"
+      ],
+      "matchStrings": [
+        "\\s*chart:\\s*name:\\s+(?<depName>.*?)\\s*repository:\\s*(?<registryUrl>.*?)\\s*version:\\s*\"?(?<currentValue>.*?)\"?\\s"
+      ],
+      "datasourceTemplate": "helm"
+    },
+    {
+      "customType": "regex",
+      "fileMatch": [
+        "\\.gitops/deploy/Chart\\.yaml$"
+      ],
+      "matchStrings": [
+        "appVersion:\\s+(?<currentValue>.*)"
+      ],
+      "depNameTemplate": "istiod",
+      "registryUrlTemplate": "https://istio-release.storage.googleapis.com/charts",
+      "datasourceTemplate": "helm"
+    }
+  ],
+  "crossplane": {
+    "fileMatch": ["\\.yaml$", "\\.yaml\\.gotmpl$"]
+  }
+}

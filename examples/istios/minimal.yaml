@@ -1,0 +1,7 @@
+apiVersion: helm.hops.ops.com.ai/v1alpha1
+kind: Istio
+metadata:
+  name: istio
+  namespace: example-env
+spec:
+  clusterName: example-cluster
