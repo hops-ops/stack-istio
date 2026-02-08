@@ -32,8 +32,6 @@ spec:
       {{- toYaml $ist.istiod.overrideAllValues | nindent 6 }}
     {{- else }}
     values:
-      fullnameOverride: istiod
-      nameOverride: istiod
       # Mesh configuration for observability integration
       meshConfig:
         # Enable access logging for debugging

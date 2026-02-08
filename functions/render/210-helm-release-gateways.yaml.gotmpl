@@ -29,8 +29,6 @@ spec:
       {{- toYaml $gw.overrideAllValues | nindent 6 }}
     {{- else }}
     values:
-      fullnameOverride: {{ $gw.name }}
-      nameOverride: {{ $gw.name }}
       service:
         type: {{ $gw.type }}
         {{- if $gw.ports }}
