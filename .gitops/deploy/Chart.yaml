@@ -2,4 +2,4 @@ apiVersion: v2
 name: helm-istio
 version: 0.0.0
 description: GitOps packaging for the Istio Crossplane configuration
-appVersion: 1.28.3
+appVersion: 1.29.0
