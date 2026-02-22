@@ -11,7 +11,7 @@
 # ==============================================================================
 {{- $observeRelease := dict }}
 
-{{- range $key := list "helm-release-base" "helm-release-istiod" }}
+{{- range $key := list "namespace" "helm-release-base" "helm-release-istiod" }}
   {{- $entry := get $raw $key | default dict }}
   {{- $resource := $entry.resource | default dict }}
   {{- $status := $resource.status | default dict }}
@@ -42,6 +42,7 @@
 
 # Set observed state
 {{- $state = set $state "observed" (dict
+  "namespace" (get $observeRelease "namespace" | default dict)
   "base" (get $observeRelease "helm-release-base" | default dict)
   "istiod" (get $observeRelease "helm-release-istiod" | default dict)
   "gateways" $gatewayObserved

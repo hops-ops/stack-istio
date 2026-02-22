@@ -1,0 +1,26 @@
+apiVersion: stacks.hops.ops.com.ai/v1alpha1
+kind: IstioStack
+metadata:
+  name: istio
+  namespace: default
+spec:
+  clusterName: default
+  labels:
+    team: platform
+  namespace: istio-system
+  istiod:
+    values:
+      pilot:
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+  gateways:
+    - name: istio-ingressgateway
+      type: LoadBalancer
+    - name: istio-egressgateway
+      type: ClusterIP
+  egress:
+    allowedHosts:
+      - "*.googleapis.com"
+      - "api.github.com"

@@ -19,7 +19,7 @@
 {{- end }}
 
 ---
-apiVersion: kubernetes.crossplane.io/v1alpha2
+apiVersion: kubernetes.m.crossplane.io/v1alpha1
 kind: Object
 metadata:
   name: {{ $ist.name }}-egress-{{ $sanitized }}
@@ -48,5 +48,6 @@ spec:
         - "*"
   providerConfigRef:
     name: {{ $ist.providerConfigRef.name }}
+    kind: {{ $ist.providerConfigRef.kind }}
 
 {{- end }}

@@ -10,12 +10,30 @@ import models.k8s.apimachinery.pkg.apis.meta.v1 as metav1
 # - Tests should verify XRD spec fields produce expected behavior
 # ==============================================================================
 
+# ==============================================================================
+# Shared observedResources: istiod ready (required for gateway emission)
+# ==============================================================================
+_istiodReady = [
+    {
+        apiVersion = "helm.m.crossplane.io/v1beta1"
+        kind = "Release"
+        metadata = {
+            name = "placeholder-istiod"
+            annotations = {"crossplane.io/composition-resource-name" = "helm-release-istiod"}
+        }
+        status.conditions = [
+            {type = "Ready", status = "True"}
+            {type = "Synced", status = "True"}
+        ]
+    }
+]
+
 _items = [
     # ==========================================================================
-    # Test 1: Minimal input renders base, istiod, and default gateways
+    # Test 1: Minimal input renders base and istiod (no gateways without istiod ready)
     # ==========================================================================
     metav1alpha1.CompositionTest {
-        metadata.name = "minimal-renders-all-releases"
+        metadata.name = "minimal-renders-base-and-istiod"
         spec = {
             compositionPath = "apis/istiostacks/composition.yaml"
             xrdPath = "apis/istiostacks/definition.yaml"
@@ -36,6 +54,26 @@ _items = [
                     kind = "Release"
                     metadata.name = "test-istio-istiod"
                 }
+            ]
+        }
+    }
+
+    # ==========================================================================
+    # Test 2: Gateways emitted once istiod is observed ready
+    # ==========================================================================
+    metav1alpha1.CompositionTest {
+        metadata.name = "gateways-after-istiod-ready"
+        spec = {
+            compositionPath = "apis/istiostacks/composition.yaml"
+            xrdPath = "apis/istiostacks/definition.yaml"
+            timeoutSeconds = 60
+            validate = False
+            xr = stacksv1alpha1.IstioStack {
+                metadata.name = "test-istio"
+                spec.clusterName = "test-cluster"
+            }
+            observedResources = _istiodReady
+            assertResources = [
                 {
                     apiVersion = "helm.m.crossplane.io/v1beta1"
                     kind = "Release"
@@ -51,7 +89,7 @@ _items = [
     }
 
     # ==========================================================================
-    # Test 2: Custom labels are applied and merged with defaults
+    # Test 3: Custom labels are applied and merged with defaults
     # ==========================================================================
     metav1alpha1.CompositionTest {
         metadata.name = "custom-labels-merged-with-defaults"
@@ -87,7 +125,7 @@ _items = [
     }
 
     # ==========================================================================
-    # Test 3: istiod overrideAllValues replaces defaults
+    # Test 4: istiod overrideAllValues replaces defaults
     # ==========================================================================
     metav1alpha1.CompositionTest {
         metadata.name = "override-all-values"
@@ -120,7 +158,7 @@ _items = [
     }
 
     # ==========================================================================
-    # Test 4: Explicit gateways override defaults
+    # Test 5: Explicit gateways override defaults (with istiod ready)
     # ==========================================================================
     metav1alpha1.CompositionTest {
         metadata.name = "explicit-gateways"
@@ -138,17 +176,8 @@ _items = [
                     ]
                 }
             }
+            observedResources = _istiodReady
             assertResources = [
-                {
-                    apiVersion = "helm.m.crossplane.io/v1beta1"
-                    kind = "Release"
-                    metadata.name = "custom-gw-base"
-                }
-                {
-                    apiVersion = "helm.m.crossplane.io/v1beta1"
-                    kind = "Release"
-                    metadata.name = "custom-gw-istiod"
-                }
                 {
                     apiVersion = "helm.m.crossplane.io/v1beta1"
                     kind = "Release"
@@ -159,7 +188,7 @@ _items = [
     }
 
     # ==========================================================================
-    # Test 5: Egress allowedHosts creates ServiceEntry objects
+    # Test 6: Egress allowedHosts creates ServiceEntry objects
     # ==========================================================================
     metav1alpha1.CompositionTest {
         metadata.name = "egress-allowed-hosts"
@@ -180,13 +209,13 @@ _items = [
             assertResources = [
                 # ServiceEntry for wildcard host
                 {
-                    apiVersion = "kubernetes.crossplane.io/v1alpha2"
+                    apiVersion = "kubernetes.m.crossplane.io/v1alpha1"
                     kind = "Object"
                     metadata.name = "egress-test-egress-wildcard-googleapis-com"
                 }
                 # ServiceEntry for specific host
                 {
-                    apiVersion = "kubernetes.crossplane.io/v1alpha2"
+                    apiVersion = "kubernetes.m.crossplane.io/v1alpha1"
                     kind = "Object"
                     metadata.name = "egress-test-egress-api-github-com"
                 }

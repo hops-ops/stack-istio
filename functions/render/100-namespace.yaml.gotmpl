@@ -1,0 +1,30 @@
+# code: language=yaml
+#
+# Namespace for Istio components
+# Created before Helm charts so it exists with the istio-injection label,
+# which the sidecar injector webhook requires to mutate gateway pods.
+#
+
+{{- $ist := $state.istio }}
+
+---
+apiVersion: kubernetes.m.crossplane.io/v1alpha1
+kind: Object
+metadata:
+  name: {{ $ist.name }}-namespace
+  annotations:
+    {{ setResourceNameAnnotation "namespace" }}
+  labels: {{ $ist.labels | toJson }}
+spec:
+  managementPolicies: {{ $ist.managementPolicies | toJson }}
+  forProvider:
+    manifest:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: {{ $ist.namespace }}
+        labels:
+          istio-injection: enabled
+  providerConfigRef:
+    name: {{ $ist.providerConfigRef.name }}
+    kind: {{ $ist.providerConfigRef.kind }}

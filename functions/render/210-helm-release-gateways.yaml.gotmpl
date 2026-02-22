@@ -6,6 +6,9 @@
 {{- $ist := $state.istio }}
 {{- $obs := $state.observed }}
 
+# Gate on istiod readiness — the sidecar injector must be running
+# to mutate gateway pods and replace image: auto with the real proxy image
+{{- if $obs.istiod.ready }}
 {{- range $gw := $ist.gateways }}
 
 ---
@@ -76,4 +79,5 @@ spec:
       name: {{ $ist.name }}-{{ $gw.name }}
 {{- end }}
 
-{{- end }}
+{{- end }}{{/* range $gw */}}
+{{- end }}{{/* if istiod ready */}}
