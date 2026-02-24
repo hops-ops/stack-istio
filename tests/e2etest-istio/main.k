@@ -27,12 +27,13 @@ _items = [
             skipDelete = False
 
             # ==============================================================
-            # extraResources: RBAC and Helm ProviderConfig
+            # extraResources: RBAC, Helm ProviderConfig, Kubernetes ProviderConfig
             # These are NOT deleted during cleanup
             # ==============================================================
             extraResources = [
                 # Grant cluster-admin to all SAs in crossplane-system namespace
-                # This allows the Helm provider to create namespaces and install charts
+                # This allows the Helm provider to create namespaces and install charts,
+                # and for Kubernetes provider to create Object resources
                 {
                     apiVersion = "rbac.authorization.k8s.io/v1"
                     kind = "ClusterRoleBinding"
@@ -51,9 +52,23 @@ _items = [
                     ]
                 }
                 # Helm ProviderConfig - uses in-cluster identity
-                # Must use helm.m.crossplane.io to match the Release API
                 {
                     apiVersion = "helm.m.crossplane.io/v1beta1"
+                    kind = "ProviderConfig"
+                    metadata = {
+                        name = "default"
+                        namespace = "default"
+                    }
+                    spec = {
+                        credentials = {
+                            source = "InjectedIdentity"
+                        }
+                    }
+                }
+                # Kubernetes ProviderConfig - uses in-cluster identity
+                # Used by Object resources (namespace, egress ServiceEntries)
+                {
+                    apiVersion = "kubernetes.m.crossplane.io/v1alpha1"
                     kind = "ProviderConfig"
                     metadata = {
                         name = "default"
