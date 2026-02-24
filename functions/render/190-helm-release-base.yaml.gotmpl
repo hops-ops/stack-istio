@@ -4,6 +4,7 @@
 #
 
 {{- $ist := $state.istio }}
+{{- $obs := $state.observed }}
 
 ---
 apiVersion: helm.m.crossplane.io/v1beta1
@@ -35,3 +36,29 @@ spec:
   providerConfigRef:
     name: {{ $ist.providerConfigRef.name }}
     kind: {{ $ist.providerConfigRef.kind }}
+
+# ==============================================================================
+# Usage: delete base before namespace (deletion protection)
+# Only emit when both resources are observed as ready
+# ==============================================================================
+{{- if and ($obs.namespace.ready | default false) ($obs.base.ready | default false) }}
+---
+apiVersion: protection.crossplane.io/v1beta1
+kind: Usage
+metadata:
+  name: {{ $ist.name }}-delete-base-before-namespace
+  annotations:
+    {{ setResourceNameAnnotation "usage-delete-base-before-namespace" }}
+spec:
+  replayDeletion: true
+  of:
+    apiVersion: kubernetes.m.crossplane.io/v1alpha1
+    kind: Object
+    resourceRef:
+      name: {{ $ist.name }}-namespace
+  by:
+    apiVersion: helm.m.crossplane.io/v1beta1
+    kind: Release
+    resourceRef:
+      name: {{ $ist.name }}-base
+{{- end }}

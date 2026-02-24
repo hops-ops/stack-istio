@@ -40,10 +40,28 @@
   {{- $gatewayObserved = append $gatewayObserved (dict "name" $gw.name "ready" $ready) }}
 {{- end }}
 
+# Observe each egress service entry
+{{- $egressObserved := list }}
+{{- range $host := $eff.egress.allowedHosts }}
+  {{- $sanitized := $host | replace "*." "wildcard-" | replace "." "-" }}
+  {{- $seKey := printf "egress-service-entry-%s" $sanitized }}
+  {{- $entry := get $raw $seKey | default dict }}
+  {{- $resource := $entry.resource | default dict }}
+  {{- $status := $resource.status | default dict }}
+  {{- $ready := false }}
+  {{- range ($status.conditions | default list) }}
+    {{- if and (eq .type "Ready") (eq .status "True") }}
+      {{- $ready = true }}
+    {{- end }}
+  {{- end }}
+  {{- $egressObserved = append $egressObserved (dict "name" $sanitized "ready" $ready) }}
+{{- end }}
+
 # Set observed state
 {{- $state = set $state "observed" (dict
   "namespace" (get $observeRelease "namespace" | default dict)
   "base" (get $observeRelease "helm-release-base" | default dict)
   "istiod" (get $observeRelease "helm-release-istiod" | default dict)
   "gateways" $gatewayObserved
+  "egressServiceEntries" $egressObserved
 ) }}

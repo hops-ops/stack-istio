@@ -9,6 +9,7 @@
 #
 
 {{- $ist := $state.istio }}
+{{- $obs := $state.observed }}
 
 {{- range $host := $ist.egress.allowedHosts }}
 
@@ -49,5 +50,43 @@ spec:
   providerConfigRef:
     name: {{ $ist.providerConfigRef.name }}
     kind: {{ $ist.providerConfigRef.kind }}
+
+# ==============================================================================
+# Usage: delete service entry before egress gateway (deletion protection)
+# Only emit when both resources are observed as ready
+# ==============================================================================
+{{- $seReady := false }}
+{{- range $se := ($obs.egressServiceEntries | default list) }}
+  {{- if eq $se.name $sanitized }}
+    {{- $seReady = $se.ready | default false }}
+  {{- end }}
+{{- end }}
+{{- $egressGwReady := false }}
+{{- range $gw := ($obs.gateways | default list) }}
+  {{- if eq $gw.name "istio-egressgateway" }}
+    {{- $egressGwReady = $gw.ready | default false }}
+  {{- end }}
+{{- end }}
+{{- if and $seReady $egressGwReady }}
+---
+apiVersion: protection.crossplane.io/v1beta1
+kind: Usage
+metadata:
+  name: {{ $ist.name }}-delete-egress-{{ $sanitized }}-before-egressgateway
+  annotations:
+    {{ setResourceNameAnnotation (printf "usage-delete-egress-%s-before-egressgateway" $sanitized) }}
+spec:
+  replayDeletion: true
+  of:
+    apiVersion: helm.m.crossplane.io/v1beta1
+    kind: Release
+    resourceRef:
+      name: {{ $ist.name }}-istio-egressgateway
+  by:
+    apiVersion: kubernetes.m.crossplane.io/v1alpha1
+    kind: Object
+    resourceRef:
+      name: {{ $ist.name }}-egress-{{ $sanitized }}
+{{- end }}
 
 {{- end }}
