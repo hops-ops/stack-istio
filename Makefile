@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-PACKAGE ?= stack-istio
+PACKAGE ?= istio-stack
 XRD_DIR := apis/istiostacks
 COMPOSITION := $(XRD_DIR)/composition.yaml
 DEFINITION := $(XRD_DIR)/definition.yaml

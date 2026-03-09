@@ -1,7 +1,7 @@
 apiVersion: meta.dev.upbound.io/v2alpha1
 kind: Project
 metadata:
-  name: stack-istio
+  name: istio-stack
 spec:
   dependsOn:
   - apiVersion: pkg.crossplane.io/v1
@@ -21,8 +21,8 @@ spec:
   license: Apache-2.0
   maintainer: Patrick Lee Scott <pat@patscott.io>
   readme: |
-    # stack-istio
+    # istio-stack
 
     Installs Istio (base, istiod, gateways) using Crossplane and the Helm provider.
-  repository: ghcr.io/hops-ops/stack-istio
-  source: github.com/hops-ops/stack-istio
+  repository: ghcr.io/hops-ops/istio-stack
+  source: github.com/hops-ops/istio-stack

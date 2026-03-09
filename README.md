@@ -1,10 +1,10 @@
-# stack-istio
+# istio-stack
 
 A Crossplane Configuration package that installs Istio (base, istiod, and gateways) via Helm with a minimal, stable interface.
 
 ## Overview
 
-`stack-istio` renders three categories of Helm releases:
+`istio-stack` renders three categories of Helm releases:
 
 - **istio-base** — CRDs and cluster-wide resources
 - **istiod** — Istio control plane with observability defaults (Prometheus, Tempo)
@@ -29,13 +29,13 @@ Deletion protection (Usages) ensures correct teardown order: gateways before ist
 apiVersion: pkg.crossplane.io/v1
 kind: Configuration
 metadata:
-  name: stack-istio
+  name: istio-stack
 spec:
-  package: ghcr.io/hops-ops/stack-istio:latest
+  package: ghcr.io/hops-ops/istio-stack:latest
 ```
 
 ```yaml
-apiVersion: stacks.hops.ops.com.ai/v1alpha1
+apiVersion: hops.ops.com.ai/v1alpha1
 kind: IstioStack
 metadata:
   name: istio
@@ -70,7 +70,7 @@ Wildcard hosts (e.g. `*.googleapis.com`) use `resolution: NONE`. Specific hosts 
 ## Full Example
 
 ```yaml
-apiVersion: stacks.hops.ops.com.ai/v1alpha1
+apiVersion: hops.ops.com.ai/v1alpha1
 kind: IstioStack
 metadata:
   name: istio

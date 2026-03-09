@@ -1,15 +1,15 @@
 apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
 metadata:
-  name: istiostacks.stacks.hops.ops.com.ai
+  name: istiostacks.hops.ops.com.ai
 spec:
   compositeTypeRef:
-    apiVersion: stacks.hops.ops.com.ai/v1alpha1
+    apiVersion: hops.ops.com.ai/v1alpha1
     kind: IstioStack
   mode: Pipeline
   pipeline:
   - functionRef:
-      name: hops-ops-stack-istiorender
+      name: hops-ops-istio-stackrender
     step: render
   - functionRef:
       name: crossplane-contrib-function-auto-ready

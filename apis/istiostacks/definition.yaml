@@ -1,9 +1,9 @@
 apiVersion: apiextensions.crossplane.io/v2
 kind: CompositeResourceDefinition
 metadata:
-  name: istiostacks.stacks.hops.ops.com.ai
+  name: istiostacks.hops.ops.com.ai
 spec:
-  group: stacks.hops.ops.com.ai
+  group: hops.ops.com.ai
   names:
     kind: IstioStack
     plural: istiostacks

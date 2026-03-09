@@ -1,4 +1,4 @@
-apiVersion: stacks.hops.ops.com.ai/v1alpha1
+apiVersion: hops.ops.com.ai/v1alpha1
 kind: IstioStack
 metadata:
   name: istio
